@@ -1,0 +1,17 @@
+name: Azure OIDC check
+on: workflow_dispatch
+
+jobs:
+  check:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Controleer toegang tot de Function App
+        run: az functionapp show -g SmartSystemV3 -n smartsystem-db-bridge --query name -o tsv
