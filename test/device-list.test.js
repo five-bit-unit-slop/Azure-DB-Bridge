@@ -89,7 +89,7 @@ test('bad JSON does not reach SQL', async () => {
 
 test('unknown action does not reach SQL', async () => {
     const { route, calls } = loadRoute();
-    const result = await post(route, { ...body, action: 'measurement.create' });
+    const result = await post(route, { ...body, action: 'gateway.explode' });
     assert.equal(result.status, 400);
     assert.equal(result.jsonBody.code, 'INVALID_ACTION');
     assert.equal(calls.connected, 0);
