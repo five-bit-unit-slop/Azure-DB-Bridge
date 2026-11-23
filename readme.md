@@ -1,25 +1,37 @@
-# Azure DB Bridge
+## TODO - Source code structure
 
-The Azure DB Bridge connects the Smart System to an Azure database, enabling the application to communicate with and access its data.
+The source code must be split into separate modules, each with a clearly defined responsibility.
 
-## api
+### `src/`
+- [ ] `index.js` - Initialize and configure Azure Functions.
+- [ ] `functions/database.js` - Register the HTTP trigger and route incoming requests to the correct handlers.
 
-- `GET /api/database`: check the SQL connection.
-- `POST /api/database`: actions from the Worker. The Worker calls this for `GET /device` and `GET|POST /measurements`.
+### `src/handlers/`
+- [ ] `deviceHandler.js` - Handle device-related HTTP actions, such as listing devices.
+- [ ] `measurementHandler.js` - Handle measurement-related HTTP actions, such as creating and listing measurements.
 
-Supported actions:
+### `src/services/`
+- [ ] `deviceService.js` - Implement device-related business logic.
+- [ ] `measurementService.js` - Implement measurement-related business logic.
 
-- `device.list`: an active gateway gets its own `devices` list. An invalid or inactive gateway gets `401`. Does not change any SQL rows.
-- `measurement.create`: `{ action, gateway_token_hash, message: { request_id, timestamp, device: { id }, measurements: [{ sensor_key, value, unit }] } }`. The device is resolved by `device_name` (or `id`) inside the calling gateway; sensors are resolved by `(device_id, sensor_key)` and `unit` must match `dbo.Sensors.unit`. Inserts into `dbo.Measurements` with `recorded_at` from the payload and `received_at` server-side. Duplicate `(request_id, sensor_id)` pairs are skipped (see the unique index below). Returns `{ status: "ok", request_id, inserted, skipped }`.
-- `measurement.list`: `{ action, gateway_token_hash, device_id, limit }`. Returns up to `limit` (1-100) measurements across the gateway's devices, newest first. `device_id` may be `null` (all devices) or a `device_name`/`id` within the gateway.
+### `src/database/`
+- [ ] `connection.js` - Configure and manage Azure SQL connections and authentication.
+- [ ] `gatewayRepository.js` - Handle database queries for gateways.
+- [ ] `deviceRepository.js` - Handle database queries for devices.
+- [ ] `sensorRepository.js` - Handle database queries for sensors.
+- [ ] `measurementRepository.js` - Handle database queries for measurements.
 
-Run `npm test` for the offline checks. The live bridge needs read/write access to `dbo.Gateways`, `dbo.Devices`, `dbo.Sensors` and `dbo.Measurements` via the Function App's managed identity.
+### `src/validation/`
+- [ ] `deviceValidation.js` - Validate device-related input.
+- [ ] `measurementValidation.js` - Validate measurement payloads and their fields.
 
-One-time SQL for idempotent measurement ingestion (if not already present):
+### `src/utils/`
+- [ ] `responses.js` - Provide reusable HTTP response helpers for success and error responses.
 
-```sql
-CREATE UNIQUE INDEX ux_measurements_request_sensor
-ON dbo.Measurements (request_id, sensor_id);
-```
-
-AI: the `device.list` change and tests were drafted with Arena.ai.
+### Cleanup and verification
+- [ ] Move all existing functionality from `httpTrigger1.js` into the appropriate modules.
+- [ ] Update imports and exports.
+- [ ] Remove `httpTrigger1.js` after the migration is complete.
+- [ ] Ensure there is only one registration for the `database` HTTP trigger.
+- [ ] Run `npm test` and verify that all existing tests pass.
+- [ ] Test the Azure Function locally with `func start`.
