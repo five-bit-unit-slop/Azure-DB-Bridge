@@ -1,5 +1,7 @@
 # Azure DB Bridge
 
+> documentation made with ai cus I am too lazy :)
+
 A single Azure Function that lets field hardware (Raspberry Pi Pico gateways) talk to
 **Azure SQL** over HTTPS. Devices authenticate with a gateway token, the bridge resolves
 what that gateway is actually allowed to see, and all SQL access stays server-side.
