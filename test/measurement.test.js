@@ -1,12 +1,10 @@
 //import
 const assert = require('node:assert/strict');
-const { readFileSync } = require('node:fs');
 const { test } = require('node:test');
-const { compileFunction } = require('node:vm');
+const { createLoader } = require('./support/loadModule');
 
 //vars
-const file = require.resolve('../src/functions/httpTrigger1');
-const loadFunction = compileFunction(readFileSync(file, 'utf8'), ['require', 'process'], { filename: file });
+const entry = require.resolve('../src/functions/database');
 const hash = 'a'.repeat(64);
 const gatewayId = '11111111-1111-4111-8111-111111111111';
 const deviceId = '22222222-2222-4222-8222-222222222222';
@@ -68,7 +66,12 @@ function loadRoute(queryHandler) {
     };
 
     const modules = {
-        '@azure/functions': { app: { http(name, config) { route = { name, ...config }; } } },
+        '@azure/functions': {
+            app: {
+                setup() {},
+                http(name, config) { route = { name, ...config }; }
+            }
+        },
         '@azure/identity': {
             DefaultAzureCredential: function () {
                 this.getToken = async () => ({ token: 'fake-sql-token' });
@@ -87,7 +90,7 @@ function loadRoute(queryHandler) {
         }
     };
 
-    loadFunction((name) => modules[name], { env: {} });
+    createLoader(entry, modules, {});
     return { route, queries, transactionCalls };
 }
 

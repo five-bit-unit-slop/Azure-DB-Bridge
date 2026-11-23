@@ -1,15 +1,16 @@
 {
   "name": "azure-db-bridge",
   "version": "1.0.0",
-  "description": "",
+  "description": "Azure Functions bridge between field gateways and Azure SQL",
   "scripts": {
     "start": "func start",
-    "test": "node --test"
+    "test": "node --test test/*.test.js",
+    "lint": "node --check src/index.js && find src test -name \"*.js\" -exec node --check {} +"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
     "@azure/identity": "^4.14.1",
     "mssql": "^12.7.14"
   },
-  "main": "src/{index.js,functions/*.js}"
+  "main": "src/functions/*.js"
 }
