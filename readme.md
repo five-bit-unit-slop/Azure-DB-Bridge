@@ -1,3 +1,5 @@
+# IMPORTANT!!! > I'm ditching this method as its very unreliable.
+
 # Azure DB Bridge
 
 > documentation made with ai cus I am too lazy :)
